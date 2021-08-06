@@ -10,46 +10,38 @@ from mrcnn import visualize, utils, model as model_lib
 
 
 ROOT_DIR = os.path.abspath("./")
-DATASET_TRAIN_PATH = os.path.join(ROOT_DIR, "images\\train\\darmstadt\\")
-DATASET_VAL_PATH = os.path.join(ROOT_DIR, "images\\val\\munster\\")
+DATASET_TRAIN_PATH = os.path.join(ROOT_DIR, "images\\train")
+DATASET_VAL_PATH = os.path.join(ROOT_DIR, "images\\val")
 
-ANNOTATIONS_TRAIN_PATH = os.path.join(ROOT_DIR, "images\\annotations\\train\\darmstadt\\")
-ANNOTATIONS_VAL_PATH = os.path.join(ROOT_DIR, "images\\annotations\\val\\munster\\")
+ANNOTATIONS_TRAIN_PATH = os.path.join(ROOT_DIR, "images\\annotations\\train")
+ANNOTATIONS_VAL_PATH = os.path.join(ROOT_DIR, "images\\annotations\\val")
 WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 
 LABELS_PATH = os.path.join(ROOT_DIR, "labels.txt")
-MODEL_DIR = os.path.join(ROOT_DIR, "out\\")
+MODEL_DIR = os.path.join(ROOT_DIR, "out")
 
 
 class StreetsDataset(utils.Dataset):
     def load_dataset(self, data_path, annotations_path, labels_path):
-
-        # Add classes
         labels = open(labels_path).read().strip().split("\n")
 
         for i in range(len(labels)):
             self.add_class("cityscapes", i+1, labels[i])
 
-        # dict = {}
+        for file in util.get_files(annotations_path, file_extension=".json"):
+            image_name = file[0]
+            image_annotations = file[1]
+            image_path = os.path.join(data_path, image_name.split("_")[0], image_name)
+            annotations = json.load(open(image_annotations))
 
-        for file in os.listdir(annotations_path):
-            if file.endswith(".json"):
-                path = os.path.join(annotations_path, file)
-                annotations = json.load(open(path))
-                image_name = (file.rsplit('.', 1)[0]).replace("_gtFine_polygons", "_leftImg8bit") + ".png"
-
-                # for i, p in enumerate(annotations["objects"]):
-                #     dict[p["label"]] = 1
-
-                self.add_image(
-                    "cityscapes",
-                    image_id=image_name,
-                    path=data_path+image_name,
-                    width=annotations["imgWidth"],
-                    height=annotations["imgHeight"],
-                    objects=annotations["objects"]
-                )
-        # print(list(dict))
+            self.add_image(
+                "cityscapes",
+                image_id=image_name,
+                path=image_path,
+                width=annotations["imgWidth"],
+                height=annotations["imgHeight"],
+                objects=annotations["objects"]
+            )
 
     def load_mask(self, image_id):
         # Convert polygons to a bitmap mask of shape
@@ -100,6 +92,7 @@ def main():
         "mrcnn_bbox", "mrcnn_mask"
     ])
 
+    # TODO: Adjust learning rate and weight loss
     # Train heads with higher lr to speedup the learning
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE * 2,

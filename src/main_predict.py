@@ -6,7 +6,7 @@ from mrcnn import model as model_lib
 from mrcnn import visualize
 
 # python main_predict.py -w C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\out\mrcnn_cs_2021_07_30_11_48.h5 -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\IMG_0696.jpeg
-# python main_predict.py -w C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\out\mrcnn_cs_2021_07_30_11_48.h5 -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\IMG_0696.jpeg
+# python main_predict.py -w C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\out\mrcnn_cs_2021_08_06_23_37.h5 -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\IMG_0696.jpeg
 
 
 def main():
