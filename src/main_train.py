@@ -4,8 +4,11 @@ import datetime
 import numpy as np
 import json
 import skimage.draw
-
+import matplotlib
+import matplotlib.pyplot as plt
+import pandas as pd
 import util
+import imgaug
 from mrcnn import visualize, utils, model as model_lib
 
 
@@ -16,6 +19,7 @@ DATASET_VAL_PATH = os.path.join(ROOT_DIR, "images\\val")
 ANNOTATIONS_TRAIN_PATH = os.path.join(ROOT_DIR, "images\\annotations\\train")
 ANNOTATIONS_VAL_PATH = os.path.join(ROOT_DIR, "images\\annotations\\val")
 WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
+# WEIGHTS_PATH = os.path.join(ROOT_DIR, "out\\mrcnn_cs_2021_08_11_10_09.h5")
 
 LABELS_PATH = os.path.join(ROOT_DIR, "labels.txt")
 MODEL_DIR = os.path.join(ROOT_DIR, "out")
@@ -24,9 +28,10 @@ MODEL_DIR = os.path.join(ROOT_DIR, "out")
 class StreetsDataset(utils.Dataset):
     def load_dataset(self, data_path, annotations_path, labels_path):
         labels = open(labels_path).read().strip().split("\n")
+        self.class_info = []
 
         for i in range(len(labels)):
-            self.add_class("cityscapes", i+1, labels[i])
+            self.add_class("cityscapes", i, labels[i])
 
         for file in util.get_files(annotations_path, file_extension=".json"):
             image_name = file[0]
@@ -92,39 +97,89 @@ def main():
         "mrcnn_bbox", "mrcnn_mask"
     ])
 
-    # TODO: Adjust learning rate and weight loss
-    # Train heads with higher lr to speedup the learning
-    model.train(dataset_train, dataset_val,
-                learning_rate=config.LEARNING_RATE * 2,
-                epochs=2,
-                layers='heads',
-                augmentation=None)
+    try:
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE*2,
+                    epochs=2,
+                    layers='heads',
+                    augmentation=None)
 
-    history = model.keras_model.history.history
+        history = model.keras_model.history.history
 
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE,
+                    epochs=3,
+                    layers='all')
+
+        new_history = model.keras_model.history.history
+        for k in new_history: history[k] = history[k] + new_history[k]
+
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE / 2,
+                    epochs=4,
+                    layers='all')
+
+        new_history = model.keras_model.history.history
+        for k in new_history: history[k] = history[k] + new_history[k]
+
+        # model.train(dataset_train, dataset_val,
+        #             learning_rate=config.LEARNING_RATE/2,
+        #             epochs=8,
+        #             layers='all')
+        #
+        # new_history = model.keras_model.history.history
+        # for k in new_history: history[k] = history[k] + new_history[k]
+
+        save_trained_model(model)
+        plt_results(history)
+
+        best_epoch = np.argmin(history["val_loss"])
+        score = history["val_loss"][best_epoch]
+        print(f'Best Epoch:{best_epoch + 1} val_loss:{score}')
+
+    except Exception:
+        save_trained_model(model)
+
+
+def save_trained_model(model):
     dt = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
     trained_model_path = os.path.join(MODEL_DIR, f"mrcnn_cs_{dt}.h5")
     model.keras_model.save_weights(trained_model_path)
 
-    # model.train(dataset_train, dataset_val,
-    #             learning_rate=config.LEARNING_RATE,
-    #             epochs=4 if config.DEBUG else 14,
-    #             layers='all')
 
-    # new_history = model.keras_model.history.history
-    # for k in new_history: history[k] = history[k] + new_history[k]
-    #
-    # model.train(dataset_train, dataset_val,
-    #             learning_rate=config.LEARNING_RATE / 2,
-    #             epochs=6 if config.DEBUG else 22,
-    #             layers='all')
-    #
-    # new_history = model.keras_model.history.history
-    # for k in new_history: history[k] = history[k] + new_history[k]
+def plt_results(history):
+    epochs = range(1, len(history['loss']) + 1)
+    pd.DataFrame(history, index=epochs)
 
-    best_epoch = np.argmin(history["val_loss"])
-    score = history["val_loss"][best_epoch]
-    print(f'Best Epoch:{best_epoch + 1} val_loss:{score}')
+    plt.figure(figsize=(21, 11))
+
+    plt.subplot(231)
+    plt.plot(epochs, history["loss"], label="Train loss")
+    plt.plot(epochs, history["val_loss"], label="Valid loss")
+    plt.legend()
+    plt.subplot(232)
+    plt.plot(epochs, history["rpn_class_loss"], label="Train RPN class ce")
+    plt.plot(epochs, history["val_rpn_class_loss"], label="Valid RPN class ce")
+    plt.legend()
+    plt.subplot(233)
+    plt.plot(epochs, history["rpn_bbox_loss"], label="Train RPN box loss")
+    plt.plot(epochs, history["val_rpn_bbox_loss"], label="Valid RPN box loss")
+    plt.legend()
+    plt.subplot(234)
+    plt.plot(epochs, history["mrcnn_class_loss"], label="Train MRCNN class ce")
+    plt.plot(epochs, history["val_mrcnn_class_loss"], label="Valid MRCNN class ce")
+    plt.legend()
+    plt.subplot(235)
+    plt.plot(epochs, history["mrcnn_bbox_loss"], label="Train MRCNN box loss")
+    plt.plot(epochs, history["val_mrcnn_bbox_loss"], label="Valid MRCNN box loss")
+    plt.legend()
+    plt.subplot(236)
+    plt.plot(epochs, history["mrcnn_mask_loss"], label="Train Mask loss")
+    plt.plot(epochs, history["val_mrcnn_mask_loss"], label="Valid Mask loss")
+    plt.legend()
+
+    matplotlib.use('TkAgg')
+    plt.show()
 
 
 if __name__ == "__main__":

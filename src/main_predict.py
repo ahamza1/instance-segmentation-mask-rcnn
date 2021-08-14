@@ -5,23 +5,33 @@ import util
 from mrcnn import model as model_lib
 from mrcnn import visualize
 
-# python main_predict.py -w C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\out\mrcnn_cs_2021_07_30_11_48.h5 -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\IMG_0696.jpeg
-# python main_predict.py -w C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\out\mrcnn_cs_2021_08_06_23_37.h5 -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\IMG_0696.jpeg
+# mrcnn_cs_2021_08_11_10_09.h5 - no sidewalk - little vegetation
+
+# python main_predict.py -w C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\out\mrcnn_cs_2021_08_11_10_54.h5 -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\test1.png
+# python main_predict.py -w  -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\test1.png
+
+
+ROOT_DIR = os.path.abspath("./")
+MODEL_DIR = os.path.join(ROOT_DIR, "out")
+
+
+def return_paths():
+    weights_path = os.path.join(ROOT_DIR, "out\\mrcnn_cs_2021_08_14_16_47.h5")
+    labels_path = os.path.join(ROOT_DIR, "labels.txt")
+    image_path = os.path.join(ROOT_DIR, "images\\test3.png")
+    return weights_path, labels_path, image_path
 
 
 def main():
-    root_dir = os.path.abspath("./")
-    model_dir = os.path.join(root_dir, "out")
-
     # Parse input arguments
-    weights_path, labels_path, image_path = util.get_input_arguments()
+    weights_path, labels_path, image_path = return_paths()
 
     # Initialize config & labels
     config = util.InferenceConfig()
     labels = open(labels_path).read().strip().split("\n")
 
     # Initialize the Mask R-CNN model for inference and then load the weights
-    model = model_lib.MaskRCNN(mode="inference", config=config, model_dir=model_dir)
+    model = model_lib.MaskRCNN(mode="inference", config=config, model_dir=MODEL_DIR)
     model.load_weights(weights_path, by_name=True)
 
     # Load image and run detection
