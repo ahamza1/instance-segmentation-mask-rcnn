@@ -9,40 +9,40 @@ from mrcnn import utils
 class TrainConfig(Config):
     NAME = "cityscapes"
     DEBUG = True
+    CORRUPT_FILES = ""
 
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
 
-    NUM_CLASSES = 40 + 1
+    NUM_CLASSES = 10
 
-    BACKBONE = 'resnet50'
+    BACKBONE = 'resnet101'
 
-    IMAGE_MIN_DIM = 640
-    IMAGE_MAX_DIM = 640
+    IMAGE_MIN_DIM = 512
+    IMAGE_MAX_DIM = 1024
 
-    TRAIN_ROIS_PER_IMAGE = 64
-    DETECTION_MIN_CONFIDENCE = 0.8
+    STEPS_PER_EPOCH = 256
+    TRAIN_ROIS_PER_IMAGE = 128
+    DETECTION_MIN_CONFIDENCE = 0.7
+    DETECTION_MAX_INSTANCES = 32
 
-    STEPS_PER_EPOCH = 50
-    # VALIDATION_STEPS = 125
+    RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
+    RPN_NMS_THRESHOLD = 0.85
 
     LEARNING_RATE = 0.004
-    #
+
     # LOSS_WEIGHTS = {
-    #     "rpn_class_loss": 1.,
-    #     "rpn_bbox_loss": 1.,
+    #     "rpn_class_loss": 2.,
+    #     "rpn_bbox_loss": 0.8,
     #     "mrcnn_class_loss": 1.,
-    #     "mrcnn_bbox_loss": 1.,
-    #     "mrcnn_mask_loss": 1.3
+    #     "mrcnn_bbox_loss": 1.0,
+    #     "mrcnn_mask_loss": 1.8
     # }
 
 
 class InferenceConfig(TrainConfig):
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
-
-    # IMAGE_MIN_DIM = 1024
-    # IMAGE_MAX_DIM = 1024
 
 
 def get_input_arguments():
@@ -77,7 +77,7 @@ def image_name_from_annotation(file):
 
 def load_image(path, config):
     # Load image
-    image = skimage.io.imread(path)
+    image = skimage.io.imread(path, plugin="pil")
     # If grayscale. Convert to RGB for consistency.
     if image.ndim != 3:
         image = skimage.color.gray2rgb(image)

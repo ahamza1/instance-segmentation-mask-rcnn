@@ -1,41 +1,10 @@
 BG
-sky
-building
 road
-vegetation
-pole
 traffic sign
 car
 person
-static
 sidewalk
-license plate
-ego vehicle
-out of roi
-fence
 traffic light
-terrain
-wall
 bicycle
-dynamic
-rider
-truck
-cargroup
-ground
-parking
-train
-tunnel
-rail track
-guard rail
 bus
-polegroup
-persongroup
-trailer
 motorcycle
-bridge
-bicyclegroup
-caravan
-rectification border
-motorcyclegroup
-ridergroup
-truckgroup

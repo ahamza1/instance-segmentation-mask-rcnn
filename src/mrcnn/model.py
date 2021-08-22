@@ -1270,6 +1270,9 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         bbox = utils.extract_bboxes(mask)
     except Exception as e:
         print (e)
+        with open(config.CORRUPT_FILES, "a") as a_file:
+            a_file.write("\n")
+            a_file.write(dataset.image_info[image_id]["id"])
 
     # Active classes
     # Different datasets have different classes, so track the

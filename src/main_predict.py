@@ -5,8 +5,6 @@ import util
 from mrcnn import model as model_lib
 from mrcnn import visualize
 
-# mrcnn_cs_2021_08_11_10_09.h5 - no sidewalk - little vegetation
-
 # python main_predict.py -w C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\out\mrcnn_cs_2021_08_11_10_54.h5 -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\test1.png
 # python main_predict.py -w  -l C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\labels.txt -i C:\Users\Almir\Desktop\master\instance-segmentation-mask-rcnn\src\images\test1.png
 
@@ -16,9 +14,9 @@ MODEL_DIR = os.path.join(ROOT_DIR, "out")
 
 
 def return_paths():
-    weights_path = os.path.join(ROOT_DIR, "out\\mrcnn_cs_2021_08_14_16_47.h5")
+    weights_path = os.path.join(ROOT_DIR, "out\\cityscapes20210822T1323\\mask_rcnn_cityscapes_0004.h5")
     labels_path = os.path.join(ROOT_DIR, "labels.txt")
-    image_path = os.path.join(ROOT_DIR, "images\\test3.png")
+    image_path = os.path.join(ROOT_DIR, "images\\test6.png")
     return weights_path, labels_path, image_path
 
 
