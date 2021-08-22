@@ -131,8 +131,8 @@ def main():
 
     # Exclude the last layers because they require a matching
     # number of classes
-    weights = model.find_last()
-    model.load_weights(weights, by_name=True, exclude=[
+    # weights = model.find_last()
+    model.load_weights(WEIGHTS_PATH, by_name=True, exclude=[
         "mrcnn_class_logits", "mrcnn_bbox_fc",
         "mrcnn_bbox", "mrcnn_mask"
     ])
