@@ -1,10 +1,12 @@
 BG
-road
 traffic sign
 car
 person
-sidewalk
 traffic light
 bicycle
+rider
+truck
+train
 bus
+trailer
 motorcycle

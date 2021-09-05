@@ -35,7 +35,12 @@ exclude = [
     "dusseldorf_000177_000019", "bremen_000165_000019", "jena_000059_000019", "dusseldorf_000061_000019",
     "bremen_000130_000019", "weimar_000114_000019", "zurich_000002_000019", "bremen_000124_000019",
     "dusseldorf_000196_000019", "zurich_000051_000019", "weimar_000006_000019", "munster_000045_000019",
-    "weimar_000006_000019", "munster_000045_000019", "bremen_000105_000019", "lindau_000020_000019"
+    "weimar_000006_000019", "munster_000045_000019", "bremen_000105_000019", "lindau_000020_000019",
+    "bremen_000158_000019", "dusseldorf_000057_000019", "zurich_000022_000019", "bremen_000128_000019",
+    "munster_000035_000019", "dusseldorf_000090_000019", "bremen_000146_000019", "bremen_000118_000019",
+    "bremen_000114_000019", "bremen_000111_000019", "bremen_000121_000019", "jena_000067_000019",
+    "bremen_000126_000019", "bremen_000123_000019", "weimar_000119_000019", "munster_000159_000019",
+    "dusseldorf_000040_000019", "dusseldorf_000039_000019"
 ]
 
 
@@ -129,9 +134,11 @@ def main():
     config.CORRUPT_FILES = os.path.join(ROOT_DIR, "corrupt_images.txt")
     model = model_lib.MaskRCNN(mode='training', config=config, model_dir=MODEL_DIR)
 
+    model_inference = model_lib.MaskRCNN(mode="inference", config=util.InferenceConfig(), model_dir=MODEL_DIR)
+
     # Exclude the last layers because they require a matching
     # number of classes
-    # weights = model.find_last()
+    #weights = model.find_last()
     model.load_weights(WEIGHTS_PATH, by_name=True, exclude=[
         "mrcnn_class_logits", "mrcnn_bbox_fc",
         "mrcnn_bbox", "mrcnn_mask"
@@ -149,40 +156,43 @@ def main():
         ])
     ])
 
+    mean_average_precision_callback = model_lib.MeanAveragePrecisionCallback(
+        model, model_inference, dataset_val, calculate_map_at_every_X_epoch=2, verbose=1)
+
     try:
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
                     epochs=2,
                     layers='heads',
-                    augmentation=None)
+                    augmentation=None,
+                    custom_callbacks=[mean_average_precision_callback])
 
         history = model.keras_model.history.history
-
-        model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE,
-                    epochs=4,
-                    layers='all',
-                    augmentation=None)
-
-        new_history = model.keras_model.history.history
-        for k in new_history: history[k] = history[k] + new_history[k]
+        save_history(history)
 
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 2,
-                    epochs=5,
+                    epochs=4,
                     layers='all',
-                    augmentation=augmentation)
+                    augmentation=None,
+                    custom_callbacks=[mean_average_precision_callback])
 
         new_history = model.keras_model.history.history
         for k in new_history: history[k] = history[k] + new_history[k]
+        save_history(history)
+
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE / 4,
+                    epochs=6,
+                    layers='all',
+                    augmentation=augmentation,
+                    custom_callbacks=[mean_average_precision_callback])
+
+        new_history = model.keras_model.history.history
+        for k in new_history: history[k] = history[k] + new_history[k]
+        save_history(history)
 
         save_trained_model(model)
-
-        a_file = open(os.path.join(ROOT_DIR, "history.json"), "w")
-        json.dump(history, a_file)
-        a_file.close()
-
-        # plt_results(history)
 
         best_epoch = np.argmin(history["val_loss"])
         score = history["val_loss"][best_epoch]
@@ -199,6 +209,13 @@ def save_trained_model(model):
     model.keras_model.save_weights(trained_model_path)
 
 
+def save_history(history):
+    a_file = open(os.path.join(ROOT_DIR, "history.txt"), "a")
+    a_file.write("\n")
+    a_file.write(str(history))
+    a_file.close()
+
+
 def plt_results(history):
     matplotlib.use('TkAgg')
     epochs = range(1, len(history['loss']) + 1)
@@ -210,26 +227,26 @@ def plt_results(history):
     plt.plot(epochs, history["loss"], label="Train loss")
     plt.plot(epochs, history["val_loss"], label="Valid loss")
     plt.legend()
-    # plt.subplot(232)
-    # plt.plot(epochs, history["rpn_class_loss"], label="Train RPN class ce")
-    # plt.plot(epochs, history["val_rpn_class_loss"], label="Valid RPN class ce")
-    # plt.legend()
-    # plt.subplot(233)
-    # plt.plot(epochs, history["rpn_bbox_loss"], label="Train RPN box loss")
-    # plt.plot(epochs, history["val_rpn_bbox_loss"], label="Valid RPN box loss")
-    # plt.legend()
-    # plt.subplot(234)
-    # plt.plot(epochs, history["mrcnn_class_loss"], label="Train MRCNN class ce")
-    # plt.plot(epochs, history["val_mrcnn_class_loss"], label="Valid MRCNN class ce")
-    # plt.legend()
-    # plt.subplot(235)
-    # plt.plot(epochs, history["mrcnn_bbox_loss"], label="Train MRCNN box loss")
-    # plt.plot(epochs, history["val_mrcnn_bbox_loss"], label="Valid MRCNN box loss")
-    # plt.legend()
-    # plt.subplot(236)
-    # plt.plot(epochs, history["mrcnn_mask_loss"], label="Train Mask loss")
-    # plt.plot(epochs, history["val_mrcnn_mask_loss"], label="Valid Mask loss")
-    # plt.legend()
+    plt.subplot(232)
+    plt.plot(epochs, history["rpn_class_loss"], label="Train RPN class ce")
+    plt.plot(epochs, history["val_rpn_class_loss"], label="Valid RPN class ce")
+    plt.legend()
+    plt.subplot(233)
+    plt.plot(epochs, history["rpn_bbox_loss"], label="Train RPN box loss")
+    plt.plot(epochs, history["val_rpn_bbox_loss"], label="Valid RPN box loss")
+    plt.legend()
+    plt.subplot(234)
+    plt.plot(epochs, history["mrcnn_class_loss"], label="Train MRCNN class ce")
+    plt.plot(epochs, history["val_mrcnn_class_loss"], label="Valid MRCNN class ce")
+    plt.legend()
+    plt.subplot(235)
+    plt.plot(epochs, history["mrcnn_bbox_loss"], label="Train MRCNN box loss")
+    plt.plot(epochs, history["val_mrcnn_bbox_loss"], label="Valid MRCNN box loss")
+    plt.legend()
+    plt.subplot(236)
+    plt.plot(epochs, history["mrcnn_mask_loss"], label="Train Mask loss")
+    plt.plot(epochs, history["val_mrcnn_mask_loss"], label="Valid Mask loss")
+    plt.legend()
 
     plt.show()
 

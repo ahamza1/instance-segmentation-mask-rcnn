@@ -14,9 +14,9 @@ MODEL_DIR = os.path.join(ROOT_DIR, "out")
 
 
 def return_paths():
-    weights_path = os.path.join(ROOT_DIR, "out\\cityscapes20210822T1323\\mask_rcnn_cityscapes_0004.h5")
+    weights_path = os.path.join(ROOT_DIR, "out\\cityscapes20210905T1126\\mask_rcnn_cityscapes_0002.h5")
     labels_path = os.path.join(ROOT_DIR, "labels.txt")
-    image_path = os.path.join(ROOT_DIR, "images\\test6.png")
+    image_path = os.path.join(ROOT_DIR, "images\\test1.png")
     return weights_path, labels_path, image_path
 
 
