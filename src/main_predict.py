@@ -1,21 +1,25 @@
 import os
+import random
 
 import matplotlib
-import skimage.io
-import skimage.color
 
 from config import InferenceConfig
-from main_utils import get_args_inference
+from dataset import StreetsDataset
+from main_utils import get_args
 from mrcnn import model as model_lib
-from mrcnn import utils, visualize
+from mrcnn import visualize
 
 matplotlib.use('TkAgg')
 
 
 def main():
     # Get input arguments
-    image_path, labels_path, weights_path = get_args_inference()
+    data_path, labels_path, weights_path = get_args()
     labels = open(labels_path).read().strip().split("\n")
+
+    dataset = StreetsDataset()
+    dataset.load_dataset(data_path, labels_path, "test")
+    dataset.prepare()
 
     # Initialize config & labels
     config = InferenceConfig()
@@ -26,11 +30,10 @@ def main():
     model.load_weights(weights_path, by_name=True)
 
     # Load image and run detection
-    image = skimage.io.imread(image_path, plugin="pil")
+    image = dataset.load_image(random.choice(dataset.image_ids))
 
-    result = model.detect([image], verbose=1)
+    r = model.detect([image], verbose=1)[0]
 
-    r = result[0]
     visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], labels, r['scores'])
 
 

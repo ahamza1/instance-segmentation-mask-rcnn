@@ -22,6 +22,7 @@ import urllib.request
 import shutil
 import warnings
 from distutils.version import LooseVersion
+from sklearn import metrics
 
 # URL from which to download the latest COCO trained weights
 COCO_MODEL_URL = "https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5"
@@ -792,6 +793,20 @@ def compute_recall(pred_boxes, gt_boxes, iou):
     recall = len(set(matched_gt_boxes)) / gt_boxes.shape[0]
     return recall, positive_ids
 
+
+def compute_ar(pred_boxes, gt_boxes, list_iou_thresholds):
+    AR = []
+    for iou_threshold in list_iou_thresholds:
+
+        try:
+            recall, _ = compute_recall(pred_boxes, gt_boxes, iou=iou_threshold)
+            AR.append(recall)
+        except:
+            AR.append(0.0)
+            pass
+
+    AUC = 2 * (metrics.auc(list_iou_thresholds, AR))
+    return AUC
 
 # ## Batch Slicing
 # Some custom layers support a batch size of 1 only, and require a lot of work
