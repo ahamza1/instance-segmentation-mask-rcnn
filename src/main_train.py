@@ -11,7 +11,7 @@ from mrcnn import model as model_lib
 
 def main():
     # Get input arguments
-    data_path, labels_path, weights_path = main_utils.get_args_train()
+    data_path, labels_path, weights_path = main_utils.get_args()
 
     # Load and prepare train and val dataset
     dataset_train = StreetsDataset()
@@ -50,7 +50,7 @@ def main():
 
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=1,
+                epochs=2,
                 layers='heads',
                 augmentation=None)
 
@@ -58,7 +58,7 @@ def main():
 
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 2,
-                epochs=2,
+                epochs=6,
                 layers='all',
                 augmentation=None)
 
@@ -67,14 +67,12 @@ def main():
 
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 4,
-                epochs=3,
+                epochs=10,
                 layers='all',
                 augmentation=augmentation)
 
     new_history = model.keras_model.history.history
     for k in new_history: history[k] = history[k] + new_history[k]
-
-    main_utils.save_history(history)
 
     best_epoch = np.argmin(history["val_loss"])
     score = history["val_loss"][best_epoch]
