@@ -9,6 +9,8 @@ The repository includes:
 - Evaluation on MS COCO metrics
 - Demo app 
 
+## Result Example
+![Instance Segmentation Sample](samples/sample.png)
 
 ## Setup
 1. Clone this repository
@@ -49,5 +51,3 @@ python main_train.py -d=/instance-segmentation-mask-rcnn/src/model/resources -l=
 python main_predict.py -i=/images/your_image.png -l=/instance-segmentation-mask-rcnn/src/model/resources/labels.txt -w=/instance-segmentation-mask-rcnn/src/model/resources/mask_rcnn_cityscapes.h5
 ```
 
-## Result Example
-![Instance Segmentation Sample](samples/sample.png)
