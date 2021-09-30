@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% import "bootstrap/utils.html" as utils %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div id="panel" class="row">
+        {% if result and result.image and result.objects %}
+        {% set col_class = "col-md-10" %}
+        {% else %}
+        {% set col_class = "col-md-12" %}
+        {% endif %}
+
+        <div id="preview" class="{{ col_class }}">
+            {% if not result %}
+            <div id="info-container">
+                <img src="{{ url_for('static',filename='process.svg') }}" alt="icon">
+                <div class="msg"><h3>Please select an image</h3></div>
+                <div class="msg-secondary"><h5>JPG or PNG up to 5MB</h5></div>
+            </div>
+            {% endif %}
+
+            <div id="load-container" class="hidden">
+                <div class="load">
+                    <hr/>
+                    <hr/>
+                    <hr/>
+                    <hr/>
+                </div>
+                <div class="msg"><h3>Please wait</h3></div>
+            </div>
+
+            {% if result and result.image %}
+            <div id="result_img">
+                <div class="text-center">
+                    <img src="resources/{{ result.image }}" alt="Result image" class="img img-responsive">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if result and result.image and result.objects %}
+        <div id="result-sidebar" class="col-md-2">
+            <h3><strong>Results</strong></h3>
+            <br>
+            <ul class="nav">
+                {% for o in result.objects %}
+                <li class="p-y-8">
+                    <p><span class="badge">{{ result.objects[o] }}</span> {{ o }}</p></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <form id="form-upload" action="/" method="POST" enctype="multipart/form-data">
+            <input id="form-file-input" type="file" name="file" class="hidden">
+            <input id="form-btn" type="button" value="Choose File" class="btn btn-default">
+        </form>
+    </div>
+</div>
+{%- endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{ url_for('static',filename='scripts/loading.js') }}"></script>
+{% endblock %}

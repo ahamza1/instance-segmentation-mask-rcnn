@@ -1,4 +1,4 @@
-from mrcnn.config import Config
+from model.mrcnn.config import Config
 
 
 class TrainConfig(Config):

@@ -25,7 +25,7 @@ ROOT_DIR = os.path.abspath("../")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn import utils
+from model.mrcnn import utils
 
 
 ############################################################
@@ -123,10 +123,10 @@ def display_instances(image, boxes, masks, class_ids, class_names,
 
     # Show area outside image boundaries.
     height, width = image.shape[:2]
-    ax.set_ylim(height + 10, -10)
-    ax.set_xlim(-10, width + 10)
+    ax.set_ylim(height, 0)
+    ax.set_xlim(0, width)
     ax.axis('off')
-    ax.set_title(title)
+    # ax.set_title(title)
 
     masked_image = image.astype(np.uint32).copy()
     for i in range(N):
@@ -189,7 +189,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     ax.imshow(masked_image.astype(np.uint8))
     if not (save_fig_path is None):
         plt.savefig(save_fig_path, bbox_inches="tight")
-    if auto_show:
+    if auto_show and save_fig_path is None:
         plt.show()
 
 def display_differences(image,
