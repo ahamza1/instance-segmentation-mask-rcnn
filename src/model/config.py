@@ -1,3 +1,12 @@
+import os
+import sys
+
+# Root directory of the project
+ROOT_DIR = os.path.abspath("../")
+
+# Import Mask RCNN config
+sys.path.append(ROOT_DIR)  # To find local version of the library
+
 from model.mrcnn.config import Config
 
 

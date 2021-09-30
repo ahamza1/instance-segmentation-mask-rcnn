@@ -1,10 +1,17 @@
 import json
 import os
+import sys
 
 import numpy as np
 import skimage.color
 import skimage.draw
 import skimage.io
+
+# Root directory of the project
+ROOT_DIR = os.path.abspath("../")
+
+# Import Mask RCNN utils
+sys.path.append(ROOT_DIR)  # To find local version of the library
 
 from model.mrcnn import utils
 

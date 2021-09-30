@@ -7,14 +7,12 @@ from dataset import StreetsDataset
 from mrcnn import model as model_lib
 from mrcnn.model import load_image_gt, mold_image
 from mrcnn.utils import compute_ap_range, compute_ar
+import utils
 
 
 def main():
+    data_path, labels_path, weights_path = utils.get_args()
     model_dir = os.path.join(os.path.abspath("/"), "out")
-    weights_path = os.path.join(model_dir, "cityscapes20210908T1505", "mask_rcnn_cityscapes_0010.h5")
-
-    data_path = os.path.join(os.path.abspath("/"), "resources")
-    labels_path = os.path.join(data_path, "labels.txt")
 
     config = InferenceConfig()
 
@@ -27,14 +25,17 @@ def main():
     model = model_lib.MaskRCNN(mode="inference", config=config, model_dir=model_dir)
     model.load_weights(weights_path, by_name=True)
 
+    print("Calculating @IoU 0.5")
     mAP05, mAR05 = evaluate_model(dataset_val, model, config, [.5])
     print(f"@IoU 0.5: (mAP: {mAP05:.3f}, mAR: {mAR05:.3f})")
 
+    print("Calculating @IoU 0.75")
     mAP075, mAR075 = evaluate_model(dataset_val, model, config, [.75])
     print(f"@IoU 0.75: (mAP: {mAP075:.3f}, mAR: {mAR075:.3f})")
 
+    print("Calculating @IoU 0.5-0.95")
     mAP05_095, mAR05_095 = evaluate_model(dataset_val, model, config, np.arange(0.5, 1.0, 0.05))
-    print(f"@IoU IoU 0.5-0.95: (mAP: {mAP05_095:.3f}, mAR: {mAR05_095:.3f})")
+    print(f"@IoU 0.5-0.95: (mAP: {mAP05_095:.3f}, mAR: {mAR05_095:.3f})")
 
 
 def evaluate_model(dataset, model, cfg, iou_thresholds):
