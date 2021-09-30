@@ -1,0 +1,12 @@
+BG
+traffic sign
+car
+person
+traffic light
+bicycle
+rider
+truck
+train
+bus
+trailer
+motorcycle
