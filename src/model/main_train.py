@@ -3,7 +3,7 @@ import os
 import imgaug.augmenters as iaa
 import numpy as np
 
-import main_utils
+import utils
 from config import TrainConfig
 from dataset import StreetsDataset
 from mrcnn import model as model_lib
@@ -11,7 +11,7 @@ from mrcnn import model as model_lib
 
 def main():
     # Get input arguments
-    data_path, labels_path, weights_path = main_utils.get_args()
+    data_path, labels_path, weights_path = utils.get_args()
 
     # Load and prepare train and val dataset
     dataset_train = StreetsDataset()
@@ -25,7 +25,7 @@ def main():
     # Initialize the model for training
     config = TrainConfig()
 
-    model_dir = os.path.join(os.path.abspath("./"), "out")
+    model_dir = os.path.join(os.path.abspath("/"), "out")
     model = model_lib.MaskRCNN(mode='training', config=config, model_dir=model_dir)
 
     weights = weights_path or model.find_last()

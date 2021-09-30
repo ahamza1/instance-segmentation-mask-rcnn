@@ -105,5 +105,7 @@ cython_debug/
 # PyCharm
 .idea/
 
-src/images
+src/model/resources/annotations
+src/model/resources/dataset
 **/*.h5
+!src/model/resources/mask_rcnn_cityscapes.h5

@@ -10,10 +10,10 @@ from mrcnn.utils import compute_ap_range, compute_ar
 
 
 def main():
-    model_dir = os.path.join(os.path.abspath("./"), "out")
+    model_dir = os.path.join(os.path.abspath("/"), "out")
     weights_path = os.path.join(model_dir, "cityscapes20210908T1505", "mask_rcnn_cityscapes_0010.h5")
 
-    data_path = os.path.join(os.path.abspath("./"), "resources")
+    data_path = os.path.join(os.path.abspath("/"), "resources")
     labels_path = os.path.join(data_path, "labels.txt")
 
     config = InferenceConfig()

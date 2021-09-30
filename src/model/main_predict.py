@@ -5,7 +5,7 @@ import matplotlib
 
 from config import InferenceConfig
 from dataset import StreetsDataset
-from main_utils import get_args
+from utils import get_args
 from mrcnn import model as model_lib
 from mrcnn import visualize
 
